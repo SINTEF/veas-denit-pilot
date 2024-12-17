@@ -1,0 +1,31 @@
+# @package _global_
+
+# to execute this experiment run:
+# python train.py experiment=example
+
+defaults:
+  - veas_pilot_nowcast_test
+  - override /model: baseline_naive_mean
+  - _self_
+
+# all parameters below will be merged with parameters from default configurations set above
+# this allows you to overwrite only specified parameters
+
+tags:
+  - ${hydra:runtime.choices.datamodule}
+  - ${hydra:runtime.choices.model}
+  - "nowcast"
+  - "final"
+
+logger:
+  mlflow:
+    tags:
+      model: "BaselineTestRunningMean"
+
+validate: true
+predict: false
+
+eval:
+  plot: false
+  kwargs:
+    retrain: True

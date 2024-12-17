@@ -1,0 +1,39 @@
+# @package _global_
+
+# example hyperparameter optimization of some experiment with Optuna:
+# python train.py -m hparams_search=mnist_optuna experiment=example
+
+defaults:
+  - override /datamodule: veas_pilot
+
+logger:
+  mlflow:
+    experiment_name: "veas_pilot-inputs_test-${hydra:runtime.choices.model}"
+  tensorboard: null
+
+validate: True
+test: True
+predict: False
+
+trainer:
+  max_epochs: 1000
+
+ckpt: "best"
+
+plot_datasets: false
+
+use_inputs: null
+
+datamodule:
+  data_variables:
+    future_covariates: ${use_inputs}
+
+# here we define Optuna hyperparameter search
+# it optimizes for value returned from function with @hydra.main decorator
+# docs: https://hydra.cc/docs/next/plugins/optuna_sweeper
+hydra:
+  mode: "MULTIRUN" # set hydra to multirun by default if this config is attached
+
+  sweeper:
+    params:
+      use_inputs: ${powerset:["ammonium", "filterpressure_1", "filterpressure_8", "methanol", "nitrate_in", "orto-p", "oxygen", "temp", "tunnelwater", "turb"]}

@@ -1,0 +1,37 @@
+# @package _global_
+
+# to execute this experiment run:
+# python train.py experiment=example
+
+defaults:
+  - override /datamodule: veas_pilot
+  - _self_
+
+# all parameters below will be merged with parameters from default configurations set above
+# this allows you to overwrite only specified parameters
+
+test: True
+
+datamodule:
+  train_val_test_split:
+    train:
+      - "2023-09-18"
+      - "2024-01-09 14:10:00"
+    val:
+      - "2024-01-09 14:10:00"
+      - "2024-01-22 03:30:00"
+    test:
+      - - "2024-01-29 10:30:00"
+        - "2024-02-01 15:10:00"
+      - - "2024-02-02 12:40:00"
+        - "2024-02-17 19:00:00"
+      - - "2024-02-19 12:20:00"
+        - "2024-02-28"
+
+eval:
+  inverse_transform_data:
+    partial_ok: True
+  kwargs:
+    start: ${max_lags}
+
+max_lags: 276

@@ -1,0 +1,6 @@
+# NB: very slow to fit
+
+defaults:
+  - base_local
+
+_target_: darts.models.forecasting.auto_arima.AutoARIMA

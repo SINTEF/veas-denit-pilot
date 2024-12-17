@@ -1,0 +1,31 @@
+# @package _global_
+
+defaults:
+  - base_nontorch
+
+model:
+  _target_: darts.models.forecasting.xgboost.XGBModel
+  lags: null
+  output_chunk_length: 1
+  lags_future_covariates:
+    _target_: builtins.tuple
+    _args_:
+      - - 148
+        - ${model.output_chunk_length}
+  early_stopping_rounds: 10
+  n_estimators: 1000
+  colsample_bytree: 1.0
+  learning_rate: 0.0378452998427361
+  max_depth: 6
+  min_child_weight: 1
+  reg_alpha: 0.0
+  reg_lambda: 0.0
+  subsample: 0.4
+
+datamodule:
+  data_variables:
+    future_covariates:
+      - "filterpressure_1"
+      - "filterpressure_8"
+      - "nitrate_in"
+      - "temp"

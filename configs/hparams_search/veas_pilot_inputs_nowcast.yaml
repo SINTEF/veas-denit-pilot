@@ -1,0 +1,20 @@
+# @package _global_
+
+# example hyperparameter optimization of some experiment with Optuna:
+# python train.py -m hparams_search=mnist_optuna experiment=example
+
+defaults:
+  - veas_pilot_inputs
+  - override /experiment: veas_pilot_nowcast_test
+
+logger:
+  mlflow:
+    experiment_name: "hpopt-veas_pilot-inputs_test-nowcast-${hydra:runtime.choices.model}"
+
+hydra:
+  mode: "MULTIRUN" # set hydra to multirun by default if this config is attached
+
+  sweeper:
+    _target_: hydra_plugins.hydra_optuna_sweeper.optuna_sweeper.OptunaSweeper
+
+    study_name: "veas_pilot-inputs_test-nowcast"

@@ -1,0 +1,102 @@
+# @package _global_
+
+# example hyperparameter optimization of some experiment with Optuna:
+# python train.py -m hparams_search=mnist_optuna experiment=example
+
+defaults:
+  - override /datamodule: veas_pilot
+  - override /hydra/sweeper: optuna
+  - override /hydra/sweeper/sampler: grid
+
+use_inputs:
+  nitrate_in: null
+  oxygen: null
+  ammonium: null
+  filterpressure_1: null
+  filterpressure_8: null
+  turb: null
+  temp: null
+  methanol: null
+  orto-p: null
+  tunnelwater: null
+
+datamodule:
+  data_variables:
+    future_covariates: ${eval:'[input for input, use_input in ${use_inputs}.items() if use_input]'}
+
+log_hyperparameters_custom:
+  - "use_inputs"
+
+# choose metric which will be optimized by Optuna
+# metrics have the naming pattern {data split}_{metric name} where metric name is the name of the function or class implementing the metric.
+# make sure this is the correct name of some metric defined in:
+# Torch models:     model.loss_fn or model.torch_metrics
+# Non-torch models: eval.kwargs.metric
+optimized_metric: "test_mse"
+
+logger:
+  mlflow:
+    experiment_name: "hpopt-veas_pilot-inputs_test-${hydra:runtime.choices.model}"
+  tensorboard: null
+
+# Sets callbacks to monitor same metric as hyperparameter optimization and same higher/lower is better.
+callbacks:
+  early_stopping:
+    monitor: "val_loss"
+    patience: 10
+    mode: ${eval:'"${hydra:sweeper.direction}"[:3]'}
+  model_checkpoint:
+    monitor: "val_loss"
+    mode: ${eval:'"${hydra:sweeper.direction}"[:3]'}
+
+validate: True
+test: True
+predict: False
+
+trainer:
+  max_epochs: 1000
+
+ckpt: "best"
+
+plot_datasets: false
+
+# here we define Optuna hyperparameter search
+# it optimizes for value returned from function with @hydra.main decorator
+# docs: https://hydra.cc/docs/next/plugins/optuna_sweeper
+hydra:
+  mode: "MULTIRUN" # set hydra to multirun by default if this config is attached
+
+  sweeper:
+    _target_: hydra_plugins.hydra_optuna_sweeper.optuna_sweeper.OptunaSweeper
+
+    # storage URL to persist optimization results
+    # for example, you can use SQLite if you set 'sqlite:///example.db'
+    # not possible to set to hydra.output_dir because db is created before output_dir
+    storage: "sqlite:///${paths.log_dir}optuna/hyperopt.db"
+
+    # number of parallel workers
+    n_jobs: 1
+
+    # 'minimize' or 'maximize' the objective
+    direction: "minimize"
+
+    # total number of runs that will be executed
+    n_trials: 10000
+
+    study_name: "veas_pilot-inputs"
+
+    #sampler:
+    #  _target_: optuna.samplers.GridSampler
+
+    # define hyperparameter search space
+    params:
+      use_inputs.nitrate_in: choice(True, False)
+      use_inputs.oxygen: choice(True, False)
+      use_inputs.ammonium: choice(True, False)
+      use_inputs.filterpressure_1: choice(True, False)
+      use_inputs.filterpressure_8: choice(True, False)
+      use_inputs.turb: choice(True, False)
+      use_inputs.temp: choice(True, False)
+      use_inputs.methanol: choice(True, False)
+      use_inputs.orto-p: choice(True, False)
+      use_inputs.tunnelwater: choice(True, False)

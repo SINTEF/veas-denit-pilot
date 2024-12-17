@@ -1,0 +1,19 @@
+# @package _global_
+
+# to execute this experiment run:
+# python train.py experiment=example
+
+defaults:
+  - veas_pilot_forecast_test
+  - override /model: baseline_naive_seasonal
+  - _self_
+
+# all parameters below will be merged with parameters from default configurations set above
+# this allows you to overwrite only specified parameters
+
+model:
+  K: ${eval.kwargs.forecast_horizon}
+
+eval:
+  kwargs:
+    retrain: True

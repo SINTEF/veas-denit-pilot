@@ -1,0 +1,69 @@
+# @package _global_
+
+# to execute this experiment run:
+# python train.py experiment=example
+
+defaults:
+  - override /datamodule: veas_pilot
+  - _self_
+
+# all parameters below will be merged with parameters from default configurations set above
+# this allows you to overwrite only specified parameters
+
+tags:
+  - ${hydra:runtime.choices.datamodule}
+  - ${hydra:runtime.choices.model}
+
+seed: 12345
+
+callbacks:
+  early_stopping:
+    patience: 10
+
+trainer:
+  max_epochs: 1000
+
+# TODO: perhaps remove this from here? Maybe even import chunk_eval but before in the order so we can overwrite with this file
+eval:
+  kwargs:
+    forecast_horizon: 1
+    stride: 1
+    retrain: False
+
+logger:
+  mlflow:
+    experiment_name: ${mlflow-exp-name:'${hydra:runtime.choices.datamodule}-cv-${hydra:runtime.choices.model}'}
+
+plot_datasets: False
+
+validate: True
+test: False
+
+model_lags: null
+
+log_hyperparameters_custom:
+  - model_lags
+
+cross_validation:
+  folds:
+    _target_: src.datamodules.utils.generate_cross_validation_folds
+    start_time: "2023-09-18"
+    end_time: "2024-01-22 03:30:00"
+    min_length: "1w"
+    train_fraction: 0.75
+  disable_fold_logger: True
+
+use_inputs:
+  oxygen: null
+  ammonium: null
+  filterpressure_1: null
+  filterpressure_8: null
+  turb: null
+  temp: null
+  methanol: null
+  orto-p: null
+  tunnelwater: null
+
+datamodule:
+  data_variables:
+    future_covariates: ${eval:'[input for input, use_input in ${use_inputs}.items() if use_input] + ["nitrate_in"]'}

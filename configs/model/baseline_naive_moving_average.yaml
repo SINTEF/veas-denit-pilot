@@ -1,0 +1,5 @@
+defaults:
+  - base_local
+
+_target_: darts.models.forecasting.baselines.NaiveMovingAverage
+input_chunk_length: 1

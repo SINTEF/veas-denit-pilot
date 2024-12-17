@@ -1,0 +1,48 @@
+# @package _global_
+
+# example hyperparameter optimization of some experiment with Optuna:
+# python train.py -m hparams_search=mnist_optuna experiment=example
+
+defaults:
+  - veas_pilot_cv_base
+  - override /experiment: veas_pilot_nowcast
+  - override /model: veas_pilot_tcn_nowcast
+
+use_dtw: null
+model:
+  loss_fn:
+    _target_: ${eval:'"src.metrics.soft_dtw.SoftDTWMetric" if ${use_dtw} else "torch.nn.MSELoss"'}
+
+log_hyperparameters_custom:
+  - "use_dtw"
+
+datamodule:
+  data_variables:
+    past_covariates: ${eval:'[input for input, use_input in ${use_inputs}.items() if use_input] + ["nitrate_in"]'}
+    future_covariates: null
+
+# here we define Optuna hyperparameter search
+# it optimizes for value returned from function with @hydra.main decorator
+# docs: https://hydra.cc/docs/next/plugins/optuna_sweeper
+hydra:
+  sweeper:
+    study_name: veas_pilot-nowcast-cv-tcn
+    # define hyperparameter search space
+    params:
+      ++model.kernel_size: range(3, 15, 2)
+      ++model.dropout: range(0,0.6,0.1)
+      ++model.dilation_base: range(2,4)
+      ++model.input_chunk_length: range(18, 288)
+      ++model.num_filters: range(2, 25)
+      ++model.weight_norm: choice(True, False)
+      use_dtw: choice(True, False)
+      ++model.optimizer_kwargs.lr: interval(1e-5,1e-2)
+      use_inputs.oxygen: choice(True, False)
+      use_inputs.ammonium: choice(True, False)
+      use_inputs.filterpressure_1: choice(True, False)
+      use_inputs.filterpressure_8: choice(True, False)
+      use_inputs.turb: choice(True, False)
+      use_inputs.temp: choice(True, False)
+      use_inputs.methanol: choice(True, False)
+      use_inputs.orto-p: choice(True, False)
+      use_inputs.tunnelwater: choice(True, False)

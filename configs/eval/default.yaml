@@ -1,0 +1,48 @@
+split: "val" # which dataset split to evaluate on. One of [test, val]
+kwargs: # keyword arguments passed to the backtest eval runner. See backtest documentation
+  verbose: True
+  #retrain: True  # This argument is already set to False for Global models and True for Locals (which require True). Use this argument here to override.
+  metric:
+    - _target_: darts.metrics.metrics.mse
+      _partial_: True
+    - _target_: darts.metrics.metrics.dtw_metric
+      multi_grid_radius: 25 # approximate solution that runs in linear time with radius 25 (time-steps?)
+      _partial_: True
+    - _target_: darts.metrics.metrics.mae
+      _partial_: True
+    - _target_: darts.metrics.metrics.r2_score
+      _partial_: True
+  forecast_horizon: 1
+  stride: 1
+  # Note that setting start here will overwrite the values set by the model, which could introduce bugs.
+  # i.e. the start = None logic in darts does not work for all models currently, and start has therefore manually been set in each afflicted model config
+  start: null
+  retrain: False
+
+inverse_transform_data:
+  partial_ok: True
+measure_execution_time: True
+mc_dropout: False
+log_metrics: True
+metrics_per_series: True # if the split dataset consists of multiple series, setting this argument to True will produce metrics per series on the form {metric_name}_{series_idx}
+
+plot: # use to control plotting of predictions. If omitted or plot: null, no plotting is performed.
+  every_n_prediction: 1 # with forecast_horizon > stride predictions will be overlapping. This argument controls how many predictions to plot
+  title: null
+  title_add_metrics: True
+  #presenter: # how the plot should be presented. Default is ["savefig", None]
+  #  - "savefig" # will save figure to cfg.paths.output_dir / predictions / split_predictions
+  #  - null # will return figure to caller
+  kwargs:
+    plot_covariates: False
+    plot_encodings: False
+    plot_weights: True
+predictions:
+  save:
+    False # will save predictions to paths.output_dir/predictions/predictions.pkl
+    #data: True # also save the data that was predicted on to paths.output_dir/predictions/data.pkl
+  return: # will return the predictions from the src.eval.run function.
+    data: False # also return the data that was predicted on
+
+ensemble_weights:
+  save: True

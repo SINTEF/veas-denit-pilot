@@ -1,0 +1,17 @@
+# @package _global_
+
+# to execute this experiment run:
+# python train.py experiment=example
+
+defaults:
+  - veas_pilot_nowcast_test
+  - veas_pilot_lags
+  - _self_
+
+model:
+  lags: null
+  lags_future_covariates:
+    _target_: builtins.tuple
+    _args_:
+      - - ${model_lags}
+        - 1

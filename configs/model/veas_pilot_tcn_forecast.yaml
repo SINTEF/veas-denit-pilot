@@ -1,0 +1,31 @@
+# @package _global_
+
+defaults:
+  - base_torch
+
+model:
+  _target_: darts.models.forecasting.tcn_model.TCNModel
+  input_chunk_length: 23
+  kernel_size: 11
+  num_filters: 25
+  dilation_base: 3
+  dropout: 0.3
+  output_chunk_length: 1
+  weight_norm: False
+  num_layers: null # will set to get full history coverage
+  loss_fn:
+    _target_: torch.nn.MSELoss
+  optimizer_kwargs:
+    lr: 0.00017062891423090336
+
+datamodule:
+  data_variables:
+    future_covariates: null
+    past_covariates:
+      - "nitrate_in"
+      - "oxygen"
+      - "ammonium"
+      - "filterpressure_1"
+      - "tunnelwater"
+
+lr_tuner: null

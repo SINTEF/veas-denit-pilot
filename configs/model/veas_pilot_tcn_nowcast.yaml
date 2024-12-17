@@ -1,0 +1,30 @@
+# @package _global_
+
+defaults:
+  - base_torch
+
+model:
+  _target_: src.models.tcn_no_target.TCNNoTargetModel
+  input_chunk_length: 248
+  kernel_size: 5
+  num_filters: 25
+  output_chunk_length: 1
+  dilation_base: 4
+  dropout: 0.3
+  weight_norm: False
+  num_layers: null # will set to get full history coverage
+  loss_fn:
+    _target_: torch.nn.MSELoss
+  optimizer_kwargs:
+    lr: 0.0004779013180749533
+
+datamodule:
+  data_variables:
+    future_covariates: null
+    past_covariates:
+      - "nitrate_in"
+      - "turb"
+      - "temp"
+      - "methanol"
+
+lr_tuner: null

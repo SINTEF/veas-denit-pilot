@@ -1,0 +1,12 @@
+# @package _global_
+
+# to execute this experiment run:
+# python train.py experiment=example
+
+defaults:
+  - veas_pilot_forecast_test
+  - veas_pilot_lags
+  - _self_
+
+model:
+  input_chunk_length: ${model_lags}

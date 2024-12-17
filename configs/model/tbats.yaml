@@ -1,0 +1,4 @@
+defaults:
+  - base_nontorch
+
+_target_: darts.models.forecasting.tbats_model.TBATS

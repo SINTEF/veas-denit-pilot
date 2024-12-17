@@ -1,0 +1,28 @@
+# @package _global_
+
+# example hyperparameter optimization of some experiment with Optuna:
+# python train.py -m hparams_search=mnist_optuna experiment=example
+
+defaults:
+  - veas_pilot_cv_base
+  - override /experiment: veas_pilot_nowcast
+  - override /model: veas_pilot_elastic_net_nowcast
+
+# here we define Optuna hyperparameter search
+# it optimizes for value returned from function with @hydra.main decorator
+# docs: https://hydra.cc/docs/next/plugins/optuna_sweeper
+hydra:
+  sweeper:
+    study_name: veas_pilot-nowcast-cv-elastic_net
+    params:
+      model_lags: range(1, ${max_lags})
+      ++model.model.l1_ratio: interval(0.0, 1.0)
+      use_inputs.oxygen: choice(True, False)
+      use_inputs.ammonium: choice(True, False)
+      use_inputs.filterpressure_1: choice(True, False)
+      use_inputs.filterpressure_8: choice(True, False)
+      use_inputs.turb: choice(True, False)
+      use_inputs.temp: choice(True, False)
+      use_inputs.methanol: choice(True, False)
+      use_inputs.orto-p: choice(True, False)
+      use_inputs.tunnelwater: choice(True, False)

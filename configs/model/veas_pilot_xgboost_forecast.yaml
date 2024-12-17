@@ -1,0 +1,32 @@
+# @package _global_
+
+defaults:
+  - base_nontorch
+
+model:
+  _target_: darts.models.forecasting.xgboost.XGBModel
+  lags: 8
+  output_chunk_length: 1
+  lags_future_covariates:
+    _target_: builtins.tuple
+    _args_:
+      - - 8
+        - 0
+  early_stopping_rounds: 10
+  n_estimators: 1000
+  colsample_bytree: 0.9
+  learning_rate: 0.06252541749008471
+  max_depth: 3
+  min_child_weight: 1
+  reg_alpha: 1.0
+  reg_lambda: 0.0
+  subsample: 0.8
+
+datamodule:
+  data_variables:
+    future_covariates:
+      - "methanol"
+      - "nitrate_in"
+      - "orto-p"
+      - "oxygen"
+      - "tunnelwater"

@@ -1,0 +1,56 @@
+# @package _global_
+
+# example hyperparameter optimization of some experiment with Optuna:
+# python train.py -m hparams_search=mnist_optuna experiment=example
+
+defaults:
+  - veas_pilot_cv_base
+  - override /experiment: veas_pilot_nowcast
+  - override /model: veas_pilot_xgboost_nowcast
+
+use_inputs: null
+
+datamodule:
+  data_variables:
+    future_covariates:
+      - "nitrate_in"
+      - "oxygen"
+      - "ammonium"
+      - "filterpressure_1"
+      - "turb"
+      - "filterpressure_8"
+      - "temp"
+      - "methanol"
+      - "orto-p"
+      - "tunnelwater"
+
+model:
+  lags_future_covariates:
+    _target_: builtins.tuple
+    _args_:
+      - - 0
+        - 1
+
+# we dont have any input_length variation to account for
+eval:
+  kwargs:
+    start: null
+
+logger:
+  mlflow:
+    experiment_name: hpopt-${hydra:runtime.choices.model}-cv-shap
+
+# here we define Optuna hyperparameter search
+# it optimizes for value returned from function with @hydra.main decorator
+# docs: https://hydra.cc/docs/next/plugins/optuna_sweeper
+hydra:
+  sweeper:
+    study_name: veas_pilot-nowcast-cv-xgboost-shap
+    params:
+      ++model.max_depth: range(3, 10)
+      ++model.learning_rate: interval(1e-3,1e-1)
+      ++model.reg_lambda: range(0.0, 4.5, 0.5)
+      ++model.reg_alpha: range(0.0, 4.5, 0.5)
+      ++model.min_child_weight: range(1,6,2)
+      ++model.subsample: range(0.4, 1.0, 0.1)
+      ++model.colsample_bytree: range(0.4, 1.0, 0.1)

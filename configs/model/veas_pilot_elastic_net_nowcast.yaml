@@ -1,0 +1,27 @@
+# @package _global_
+
+defaults:
+  - elastic_net
+
+model:
+  lags: null
+  output_chunk_length: 1
+  multi_models: False
+  model:
+    l1_ratio: 0.6829138543754175
+  lags_future_covariates:
+    _target_: builtins.tuple
+    _args_:
+      - - 276
+        - ${model.output_chunk_length}
+
+datamodule:
+  data_variables:
+    future_covariates:
+      - "ammonium"
+      - "filterpressure_1"
+      - "filterpressure_8"
+      - "methanol"
+      - "nitrate_in"
+      - "tunnelwater"
+      - "turb"

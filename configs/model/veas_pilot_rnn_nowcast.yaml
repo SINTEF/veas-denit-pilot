@@ -1,0 +1,29 @@
+# @package _global_
+
+defaults:
+  - base_torch
+
+model:
+  _target_: darts.models.forecasting.rnn_model.RNNModel
+  input_chunk_length: 1
+  hidden_dim: 12
+  model:
+    _target_: hydra.utils.get_class
+    path: src.models.rnn_no_target.NoTargetRNNModule
+  n_rnn_layers: 5
+  dropout: 0.4
+  training_length: ${eval:'${eval.kwargs.forecast_horizon} + ${model.input_chunk_length}'}
+  loss_fn:
+    _target_: torch.nn.MSELoss
+  optimizer_kwargs:
+    lr: 0.00012592725767587393
+
+datamodule:
+  data_variables:
+    future_covariates:
+      - "filterpressure_1"
+      - "methanol"
+      - "nitrate_in"
+      - "temp"
+
+lr_tuner: null

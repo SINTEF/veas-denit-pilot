@@ -1,0 +1,42 @@
+# @package _global_
+
+# to execute this experiment run:
+# python train.py experiment=example
+
+defaults:
+  - override /datamodule: veas_pilot
+  - _self_
+
+# all parameters below will be merged with parameters from default configurations set above
+# this allows you to overwrite only specified parameters
+
+tags:
+  - ${hydra:runtime.choices.datamodule}
+  - ${hydra:runtime.choices.model}
+  - "lags"
+
+seed: 12345
+
+logger:
+  mlflow:
+    experiment_name: ${mlflow-exp-name:'${hydra:runtime.choices.datamodule}-lags_test-${hydra:runtime.choices.model}'}
+
+validate: False
+test: True
+
+model_lags: null
+
+log_hyperparameters_custom:
+  - model_lags
+
+max_lags: 294
+
+eval:
+  kwargs:
+    start: ${max_lags}
+
+hydra:
+  mode: "MULTIRUN"
+  sweeper:
+    params:
+      ++model_lags: range(6, ${max_lags}, 6)

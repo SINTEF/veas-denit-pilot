@@ -1,0 +1,12 @@
+# @package _global_
+
+# example hyperparameter optimization of some experiment with Optuna:
+# python train.py -m hparams_search=mnist_optuna experiment=example
+
+defaults:
+  - veas_pilot_inputs
+  - veas_pilot_forecast_test
+
+logger:
+  mlflow:
+    experiment_name: "veas_pilot-inputs_test-forecast-${hydra:runtime.choices.model}"

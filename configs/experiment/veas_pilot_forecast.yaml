@@ -1,0 +1,50 @@
+# @package _global_
+
+# to execute this experiment run:
+# python train.py experiment=example
+
+defaults:
+  - override /datamodule: veas_pilot
+  - _self_
+
+# all parameters below will be merged with parameters from default configurations set above
+# this allows you to overwrite only specified parameters
+
+tags:
+  - ${hydra:runtime.choices.datamodule}
+  - ${hydra:runtime.choices.model}
+  - "forecast"
+
+seed: 12345
+
+callbacks:
+  early_stopping:
+    patience: 10
+
+trainer:
+  max_epochs: 1000
+
+# TODO: perhaps remove this from here? Maybe even import chunk_eval but before in the order so we can overwrite with this file
+eval:
+  kwargs:
+    forecast_horizon: 6
+    stride: 1
+    retrain: False
+  plot:
+    every_n_prediction: ${eval.kwargs.forecast_horizon}
+
+logger:
+  mlflow:
+    experiment_name: ${mlflow-exp-name:'${hydra:runtime.choices.datamodule}-forecast-${hydra:runtime.choices.model}'}
+
+plot_datasets: False
+
+validate: True
+test: False
+
+model_lags: null
+
+log_hyperparameters_custom:
+  - model_lags
+
+max_lags: 273

@@ -1,0 +1,22 @@
+# @package _global_
+
+# to execute this experiment run:
+# python train.py experiment=example
+
+defaults:
+  - veas_pilot_forecast
+  - veas_pilot_test
+  - _self_
+
+# all parameters below will be merged with parameters from default configurations set above
+# this allows you to overwrite only specified parameters
+
+tags:
+  - ${hydra:runtime.choices.datamodule}
+  - ${hydra:runtime.choices.model}
+  - "forecast"
+  - "final"
+
+logger:
+  mlflow:
+    experiment_name: ${mlflow-exp-name:'${hydra:runtime.choices.datamodule}-forecast-test'}

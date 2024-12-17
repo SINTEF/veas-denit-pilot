@@ -1,0 +1,74 @@
+# @package _global_
+
+defaults:
+  - base_data@datamodule
+
+datamodule:
+  _target_: src.datamodules.veas_pilot_datamodule.VEASPilotDataModule
+  filename: "veas_denit_pilot.csv" #you can configure any parameter defined in the __init__ function of your datamodule.
+  train_val_test_split:
+    train:
+      - - "2023-09-18"
+        - "2023-10-09"
+      - - "2023-10-16"
+        - "2023-11-06"
+      - - "2023-11-13"
+        - "2023-12-04"
+      - - "2023-12-11"
+        - "2024-01-01"
+      - - "2024-01-08"
+        - "2024-01-22 03:30:00"
+    val:
+      - - "2023-10-09"
+        - "2023-10-16"
+      - - "2023-11-06"
+        - "2023-11-13"
+      - - "2023-12-04"
+        - "2023-12-11"
+      - - "2024-01-01"
+        - "2024-01-08"
+    test:
+      - - "2024-01-29 10:30:00"
+        - "2024-02-01 15:10:00"
+      - - "2024-02-02 12:40:00"
+        - "2024-02-17 19:00:00"
+      - - "2024-02-19 12:20:00"
+        - "2024-02-28"
+  dataset_length: 24184
+  check_for_nan: False
+  chunk_length: 2016 # Num datapoints in each chunk, 2016 = 14 days
+  target_shift: null
+  non_operational_data:
+    method: "linear_interpolation"
+    interpolate_inputs: False
+  processing_pipeline:
+    _target_: darts.dataprocessing.Pipeline
+    transformers:
+      - _target_: darts.dataprocessing.transformers.Scaler
+        scaler:
+          _target_: sklearn.preprocessing.StandardScaler
+        global_fit: True
+      - _target_: darts.dataprocessing.transformers.missing_values_filler.MissingValuesFiller
+        fill: "auto" # The default, will use pandas.Dataframe.interpolate()
+  data_variables:
+    target:
+      - "nitrate_out"
+    future_covariates:
+      - "ammonium"
+      - "filterpressure_1"
+      - "filterpressure_8"
+      - "methanol"
+      - "nitrate_in"
+      - "orto-p"
+      - "oxygen"
+      - "temp"
+      - "tunnelwater"
+      - "turb"
+#eval:
+#  kwargs:
+#    forecast_horizon: ${datamodule.target_shift}
+#    stride: ${datamodule.target_shift}
+
+#predict:
+#  kwargs:
+#    n: ${datamodule.target_shift}
