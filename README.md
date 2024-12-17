@@ -98,16 +98,3 @@ The results are saved in a database at [logs/optuna/hyperopt.db](logs/optuna/hyp
 ```bash
 bash scripts/run_optuna_dashboard.sh
 ```
-
-# Citation
-
-If you use this software in your work, please consider citing:
-
-```latex
-@article{rewts,
-  title={Recency-Weighted Temporally-Segmented Ensemble for Time-Series Modeling},
-  author={Johnsen, P{\aa}l V and B{\o}hn, Eivind and Eidnes, S{\o}lve and Remonato, Filippo and Riemer-S{\o}rensen, Signe},
-  journal={arXiv preprint arXiv:2403.02150},
-  year={2024}
-}
-```
